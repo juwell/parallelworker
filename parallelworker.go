@@ -22,12 +22,13 @@ func NewParallelWorker(ctx context.Context) ParallelWorker {
 	}
 }
 
-type WorkerFunc func(ctx context.Context)
+type WorkerFunc func(ctx context.Context, params... interface{})
 
 // add a worker function
 // this function will start a new goroutine to do your function immediately
 // it is thread safe
-func (p *ParallelWorker) AddWorker(fun WorkerFunc) error {
+// params: those are using to save the params when you want to use when the fun be called
+func (p *ParallelWorker) AddWorker(fun WorkerFunc, params... interface{}) error {
 	if p.isWait {
 		return errors.New(`waiting for all done, can't add new work`)
 	}
@@ -50,7 +51,7 @@ func (p *ParallelWorker) AddWorker(fun WorkerFunc) error {
 		}()
 
 		// real do work
-		fun(p.ctx)
+		fun(p.ctx, params...)
 	}()
 
 	return nil
